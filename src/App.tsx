@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import React from 'react';
+import React, { useState } from 'react';
 import 'bulma/css/bulma.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
@@ -7,8 +7,23 @@ import { TodoList } from './components/TodoList';
 import { TodoFilter } from './components/TodoFilter';
 import { TodoModal } from './components/TodoModal';
 import { Loader } from './components/Loader';
+import { getTodos } from './api';
+import { Todo } from './types/Todo';
 
 export const App: React.FC = () => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isUserLoading, setIsUserLoading] = useState(false);
+  const [todos, setTodos] = useState<Todo[]>([]);
+
+  getTodos().then(res => {
+    setTodos(res);
+    setIsLoaded(true);
+  });
+
+  const handleShowUser = () => {
+    setIsUserLoading(true);
+  };
+
   return (
     <>
       <div className="section">
@@ -21,14 +36,17 @@ export const App: React.FC = () => {
             </div>
 
             <div className="block">
-              <Loader />
-              <TodoList />
+              {!isLoaded && <Loader />}
+              <TodoList
+                todos={todos}
+                handleShowUser={handleShowUser}
+              />
             </div>
           </div>
         </div>
       </div>
 
-      <TodoModal />
+      {isUserLoading && <TodoModal />}
     </>
   );
 };
